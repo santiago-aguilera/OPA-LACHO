@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Panel — Opa Lacho</title>
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="/css/styles.css" />
+<style>
+  @media print {
+    body * { visibility: hidden; }
+    #qr-print, #qr-print * { visibility: visible; }
+    #qr-print { position: absolute; inset: 0; }
+  }
+</style>
+</head>
+<body class="bg-cream text-ink">
+
+<!-- Acceso -->
+<section id="login" class="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+  <img src="/img/logo.png" alt="Opa Lacho" width="288" height="291" class="mx-auto h-24 w-auto" />
+  <h1 class="mt-6 text-center font-display text-3xl font-medium">Panel de registros</h1>
+  <p class="mt-2 text-center font-sans text-sm text-ink/70">Ingrese la clave de administración.</p>
+  <form id="login-form" class="mt-6 space-y-3">
+    <input id="key-input" type="password" autocomplete="current-password" placeholder="Clave" aria-label="Clave de administración" class="w-full rounded-xl bg-sand/60 px-4 py-3 text-base ring-1 ring-ink/15 outline-none focus:ring-2 focus:ring-brand" />
+    <p id="login-error" role="alert" hidden class="text-sm text-destructive"></p>
+    <button class="w-full rounded-full bg-brand px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-brand-deep">Entrar</button>
+  </form>
+  <p class="mt-4 text-center font-sans text-xs text-ink/70">La clave aparece en la ventana negra del servidor al iniciarlo (o en <code>datos/clave_admin.txt</code>).</p>
+</section>
+
+<!-- Panel -->
+<div id="panel" hidden>
+  <header class="sticky top-0 z-30 border-b border-ink/10 bg-cream/95 backdrop-blur-sm">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
+      <div class="flex items-center gap-3">
+        <img src="/img/logo.png" alt="Opa Lacho" width="288" height="291" class="h-12 w-auto" />
+        <nav class="flex gap-1 font-sans text-sm font-semibold" role="tablist">
+          <button role="tab" id="tab-reg" aria-selected="true" class="tab rounded-full px-4 py-2">Registros</button>
+          <button role="tab" id="tab-qr" aria-selected="false" class="tab rounded-full px-4 py-2">Códigos QR</button>
+        </nav>
+      </div>
+      <button id="logout" class="rounded-full px-4 py-2 text-sm text-ink/70 ring-1 ring-ink/15">Salir</button>
+    </div>
+  </header>
+
+  <!-- Registros -->
+  <main id="view-reg" class="mx-auto max-w-7xl px-4 py-6">
+    <div id="stats" class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6"></div>
+
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <input id="f-search" type="search" placeholder="Buscar nombre, empresa, WhatsApp…" aria-label="Buscar" class="min-w-[14rem] flex-1 rounded-xl bg-sand/60 px-4 py-2.5 text-sm ring-1 ring-ink/15 outline-none focus:ring-2 focus:ring-brand" />
+      <select id="f-feria" aria-label="Feria" class="rounded-xl bg-sand/60 px-3 py-2.5 text-sm ring-1 ring-ink/15"><option value="">Todas las ferias</option></select>
+      <select id="f-estado" aria-label="Estado" class="rounded-xl bg-sand/60 px-3 py-2.5 text-sm ring-1 ring-ink/15"><option value="">Todos los estados</option></select>
+      <select id="f-interes" aria-label="Suscripción" class="rounded-xl bg-sand/60 px-3 py-2.5 text-sm ring-1 ring-ink/15"><option value="">Todas las suscripciones</option><option value="comunidad">Comunidad</option><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select>
+      <button id="btn-csv" class="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-deep">Descargar Excel (CSV)</button>
+      <button id="btn-refresh" class="rounded-full px-4 py-2.5 text-sm ring-1 ring-ink/15">Actualizar</button>
+    </div>
+    <p id="count-line" class="mt-3 font-sans text-xs text-ink/70"></p>
+
+    <div class="mt-3 overflow-x-auto rounded-2xl bg-sand/60 ring-1 ring-black/5">
+      <table class="w-full min-w-[56rem] text-left font-sans text-sm">
+        <thead class="text-xs uppercase tracking-wide text-ink/70">
+          <tr><th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Contacto</th><th class="px-4 py-3">Empresa</th><th class="px-4 py-3">Suscripción / interés</th><th class="px-4 py-3">Feria</th><th class="px-4 py-3">Estado</th><th class="px-4 py-3">Notas</th><th class="px-4 py-3"></th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p id="empty" hidden class="px-4 py-10 text-center text-ink/70">Todavía no hay registros con estos filtros.</p>
+    </div>
+  </main>
+
+  <!-- QR -->
+  <main id="view-qr" hidden class="mx-auto max-w-5xl px-4 py-6">
+    <h1 class="font-display text-3xl font-medium">Códigos QR para la feria</h1>
+    <p class="mt-2 max-w-[60ch] font-sans text-sm text-ink/70">Escriba la dirección pública de la página y el nombre de la feria. Cada feria tiene su propio QR para saber cuál rindió más.</p>
+    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+      <label class="block font-sans text-sm font-semibold">Dirección pública de la página
+        <input id="qr-base" type="url" placeholder="https://www.opalachovidabuena.com" class="mt-1 w-full rounded-xl bg-sand/60 px-4 py-3 text-sm font-normal ring-1 ring-ink/15 outline-none focus:ring-2 focus:ring-brand" /></label>
+      <label class="block font-sans text-sm font-semibold">Nombre de la feria
+        <input id="qr-feria" type="text" maxlength="40" placeholder="expo-bogota-2026" class="mt-1 w-full rounded-xl bg-sand/60 px-4 py-3 text-sm font-normal ring-1 ring-ink/15 outline-none focus:ring-2 focus:ring-brand" /></label>
+    </div>
+    <p id="qr-warn" hidden class="mt-3 rounded-xl bg-gold/20 px-4 py-3 font-sans text-sm text-ink ring-1 ring-gold/40"></p>
+
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
+      <div id="qr-print" class="rounded-3xl bg-sand/60 p-6 text-center ring-1 ring-black/5">
+        <h2 class="font-display text-xl font-medium">Para los visitantes</h2>
+        <p class="font-sans text-xs text-ink/70">Imprímalo para el stand, volantes o pantalla.</p>
+        <canvas id="qr-visit" class="mx-auto mt-4 h-auto w-full max-w-[18rem] rounded-xl bg-white"></canvas>
+        <p id="qr-visit-url" class="mt-3 break-all font-sans text-xs text-ink/70"></p>
+      </div>
+      <div class="rounded-3xl bg-sand/60 p-6 text-center ring-1 ring-black/5">
+        <h2 class="font-display text-xl font-medium">Modo stand (tablet)</h2>
+        <p class="font-sans text-xs text-ink/70">Abra este enlace en la tablet del stand: se reinicia solo tras cada registro.</p>
+        <canvas id="qr-stand" class="mx-auto mt-4 h-auto w-full max-w-[18rem] rounded-xl bg-white"></canvas>
+        <p id="qr-stand-url" class="mt-3 break-all font-sans text-xs text-ink/70"></p>
+      </div>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <button id="dl-visit" class="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-brand-deep">Descargar QR visitantes (PNG)</button>
+      <button id="dl-stand" class="rounded-full px-5 py-2.5 text-sm ring-1 ring-ink/15">Descargar QR stand (PNG)</button>
+      <button id="print-visit" class="rounded-full px-5 py-2.5 text-sm ring-1 ring-ink/15">Imprimir QR visitantes</button>
+    </div>
+  </main>
+</div>
+
+<script src="/js/vendor/qrcode.js"></script>
+<script src="/js/admin.js" defer></script>
+</body>
+</html>

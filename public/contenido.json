@@ -1,0 +1,24 @@
+{
+  "_ayuda": "Edite este archivo para activar WhatsApp, mostrar gramos, agregar testimonios REALES y personalizar la página de feria (banner y ofertas; lo que deje vacío usa el texto por defecto). Guarde y recargue la página.",
+  "whatsapp": "573132659789",
+  "whatsapp_mensaje": "Hola, quiero reservar mi Cosecha de Bienestar",
+  "gramos": {
+    "arandanos": "500 g",
+    "fresas": "500 g",
+    "champinones": "500 g",
+    "agraz": "500 g"
+  },
+  "testimonios": [],
+  "feria": {
+    "banner": "",
+    "ofertas": {
+      "oficina": {
+        "titulo": "",
+        "detalle": "",
+        "precio": ""
+      }
+    }
+  },
+  "youtube": "",
+  "instagram": "https://instagram.com/opalacho_vidabuena"
+}
